@@ -6,6 +6,8 @@ from pprint import pprint
 import datetime
 from operator import itemgetter
 
+import googleAPI
+
 def getBearerToken():
     
     #read username from txt file
@@ -37,9 +39,9 @@ def getSchedule(bearerToken):
     now = datetime.datetime.now() # get today's date
     tomorrow = now + datetime.timedelta(days=1) #get tomorrow's date
     
-    #reformat dates for Monet call
-    nowFormat = now.strftime("%Y-%m-%d")
-    tomorrowFormat = tomorrow.strftime("%Y-%m-%d")
+    #reformat dates for Monet call (PDT = -7, PST = -6)
+    nowFormat = now.strftime("%Y-%m-%d")+'T07:00:00'
+    tomorrowFormat = tomorrow.strftime("%Y-%m-%d")+'T06:59:59'
 
     #get Full Schedule from Monet
     try:
@@ -126,12 +128,91 @@ def removeFields(theSchedule):
                 
     return(theSchedule)
         
+def slTimeEdit(slSchedule):
 
+    #pull out shift lead assignments from full schedule
+    for i in range(0, len(slSchedule)):
+        #adjust start times
+        startTimeString = (slSchedule[i]['startUTC'])
+        start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
+        start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
+        slSchedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+
+        #adjust end times
+        endTimeString = (slSchedule[i]['endUTC'])
+        end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
+        end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
+        slSchedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+   
+    return(slSchedule)   
+
+def qmTimeEdit(qmSchedule):
+
+    #pull out shift lead assignments from full schedule
+    for i in range(0, len(qmSchedule)):
+        #adjust start times
+        startTimeString = (qmSchedule[i]['startUTC'])
+        start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
+        start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
+        qmSchedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+
+        #adjust end times
+        endTimeString = (qmSchedule[i]['endUTC'])
+        end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
+        end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
+        qmSchedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+    
+    return(qmSchedule)
+
+
+def stbTimeEdit(stbSchedule):
+
+    #pull out shift lead assignments from full schedule
+    for i in range(0, len(stbSchedule)):
+        #adjust start times
+        startTimeString = (stbSchedule[i]['startUTC'])
+        start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
+        start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
+        stbSchedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+
+        #adjust end times
+        endTimeString = (stbSchedule[i]['endUTC'])
+        end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
+        end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
+        stbSchedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+    
+    return(stbSchedule)
+
+
+def availableTimeEdit(availableSchedule):
+
+    #pull out shift lead assignments from full schedule
+    for i in range(0, len(availableSchedule)):
+        #adjust start times
+        startTimeString = (availableSchedule[i]['startUTC'])
+        start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
+        start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
+        availableSchedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+
+        #adjust end times
+        endTimeString = (availableSchedule[i]['endUTC'])
+        end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
+        end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
+        availableSchedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+    
+    return(availableSchedule)
 
 def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule):
+
+    #get current date and time for csv header
+    current = datetime.datetime.now()+datetime.timedelta(hours=-7) # get today's date
+    currentFormat = current.strftime("%Y-%m-%d %H:%M")
+
     with open('StaffSchedule.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
         w = csv.DictWriter(f, slSchedule[0].keys())
 
+        w.writerow({'employeeFullName': currentFormat, 'startUTC':'','endUTC':''})
+        w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
         w.writerow({'employeeFullName': 'SHIFTLEAD', 'startUTC':'','endUTC':''})
         w.writeheader()
         w.writerows(slSchedule)
@@ -147,7 +228,7 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule):
         w.writerows(stbSchedule)
 
         w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-        w.writerow({'employeeFullName': 'Available', 'startUTC':'','endUTC':''}) #write role to row
+        w.writerow({'employeeFullName': 'AVAILABLE', 'startUTC':'','endUTC':''}) #write role to row
         w.writeheader()
         w.writerows(availableSchedule)
 
@@ -172,8 +253,17 @@ if __name__ == "__main__":
     availableScheduleFiltered = removeFields(availableSchedule)
 
     #adjust timezone to PST/PDT and strip month/day/year from time - TBD
-    
+    sl = slTimeEdit(slScheduleFiltered)
+    qm = qmTimeEdit(qmScheduleFiltered)
+    stb = stbTimeEdit(stbScheduleFiltered)
+    available = availableTimeEdit(availableScheduleFiltered)
 
-    scheduleCSV = buildCSV(slScheduleFiltered, qmScheduleFiltered, stbScheduleFiltered, availableScheduleFiltered)
+    scheduleCSV = buildCSV(sl, qm, stb, available)
     
-    #sendToGoogle(scheduleCSV)
+    #send csv to google Sheet
+    FILENAME = 'StaffSchedule.csv'
+    FILEPATH = 'StaffSchedule.csv'
+    MIMETYPE = 'text/csv'
+
+    googleapiInst = googleAPI.googleapi(FILENAME, FILEPATH,  MIMETYPE)
+    googleapiInst.uploadFile()
