@@ -205,7 +205,7 @@ def availableTimeEdit(availableSchedule):
 def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule):
 
     #get current date and time for csv header
-    current = datetime.datetime.now()+datetime.timedelta(hours=-7) # get today's date
+    current = datetime.datetime.now() # get today's date
     currentFormat = current.strftime("%Y-%m-%d %H:%M")
 
     with open('StaffSchedule.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
@@ -258,6 +258,7 @@ if __name__ == "__main__":
     stb = stbTimeEdit(stbScheduleFiltered)
     available = availableTimeEdit(availableScheduleFiltered)
 
+    #build the StaffSchedule csv
     scheduleCSV = buildCSV(sl, qm, stb, available)
     
     #send csv to google Sheet

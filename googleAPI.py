@@ -42,5 +42,18 @@ class googleapi:
         file_metadata = {'name': self.FILENAME, 'mimeType': 'application/vnd.google-apps.spreadsheet'}
         media = MediaFileUpload(self.FILEPATH,
                                 mimetype=self.MIMETYPE)
-        file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+
+        #check list of files in google drive for StaffSchedule; if found, get fileID
+        notFound = True
+        fileID = drive_service.files().list().execute()
+        for i in range(0, len(fileID['files'])):
+            if (fileID['files'][i]['name'] == 'StaffSchedule') or (fileID['files'][i]['name'] == 'StaffSchedule.csv'):
+                file = drive_service.files().update(fileId=fileID['files'][i]['id'], body=file_metadata, media_body=media, fields='id').execute()
+                notFound = False
+        
+        #if StaffSchedule sheet not found, create a new one
+        if notFound == True:
+            file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        
         print('File ID: %s' % file.get('id'))
+        print('Sheet updated')
