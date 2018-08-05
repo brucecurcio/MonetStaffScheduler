@@ -19,6 +19,7 @@ class auth:
         self.SCOPES = SCOPES
         self.CLIENT_SECRET_FILE = CLIENT_SECRET_FILE
         self.APPLICATION_NAME = APPLICATION_NAME
+    
     def getCredentials(self):
         """Gets valid user credentials from storage.
         If nothing has been stored, or if the stored credentials are invalid,
