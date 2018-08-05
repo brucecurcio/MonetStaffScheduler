@@ -317,8 +317,8 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleN
 
 
 if __name__ == "__main__":
-    bearerTokenMain = getBearerToken() #get bearer token from Monet
-    fullSchedule = getSchedule(bearerTokenMain) #grab full schedule from Monet
+    bearerToken = getBearerToken() #get bearer token from Monet
+    fullSchedule = getSchedule(bearerToken) #grab full schedule from Monet
     
     #extract schedule and reorder entries according to start time
     slSchedule = slSplit(fullSchedule) 
