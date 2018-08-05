@@ -21,6 +21,7 @@ def getBearerToken():
     #get bearer token from Monet
     try:
         bearerToken = requests.post('https://api.wfmlive.com/Authentication', headers=headers, data='Tenant=Infoblox')
+        print('made it here')
     except ValueError:
             print('there was a problem getting the bearer token')
 
