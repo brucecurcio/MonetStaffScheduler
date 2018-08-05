@@ -36,8 +36,11 @@ def getSchedule(bearerToken):
                "Authorization": "Bearer " + bearerToken}
     
     #get today and tomorrow's date
-    now = datetime.datetime.now() # get today's date
-    tomorrow = now + datetime.timedelta(days=1) #get tomorrow's date
+    now = datetime.datetime.now() + datetime.timedelta(days=-1) # get monday for developing on weekend
+    tomorrow = now + datetime.timedelta(days=1) #get tuesday for developing on weekend
+    
+    #now = datetime.datetime.now() # get today's date
+    #tomorrow = now + datetime.timedelta(days=1) #get tomorrow's date
     
     #reformat dates for Monet call (PDT = -7, PST = -6)
     nowFormat = now.strftime("%Y-%m-%d")+'T07:00:00'
@@ -52,6 +55,7 @@ def getSchedule(bearerToken):
     scheduleString = fullSchedule.text #convert json to string
     scheduleDict = json.loads(scheduleString) #convert string to dict
     
+    #print(scheduleDict)
     return (scheduleDict)
 
 
@@ -61,7 +65,7 @@ def slSplit(fullScheduleDict):
 
     #pull out shift lead assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
-        if 'SHIFT LEAD' in fullSchedule['Result'][i]['workDescription']:
+        if 'SHIFT LEAD' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
             slSchedule.append(fullSchedule['Result'][i])
 
     #reorder shift lead assignments chronologically
@@ -70,13 +74,28 @@ def slSplit(fullScheduleDict):
 
     return(orderedSLSchedule)   
 
+def slSplitNMRI(fullScheduleDict):
+
+    slScheduleNMRI = [] #initialize empty list
+
+    #pull out shift lead assignments from full schedule
+    for i in range(0, len(fullSchedule['Result'])):
+        if 'SHIFT LEAD' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' in fullSchedule['Result'][i]['externalID']:
+            slScheduleNMRI.append(fullSchedule['Result'][i])
+
+    #reorder shift lead assignments chronologically
+    orderedSLScheduleNMRI = sorted(slScheduleNMRI, key=itemgetter('startUTC'))
+    
+    #print(orderedSLScheduleNMRI)
+    return(orderedSLScheduleNMRI)
+
 
 def qmSplit(fullSchedule):
     qMSchedule = [] #initialize empty list
 
     #pull out QM assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
-        if 'Queue Monitor' in fullSchedule['Result'][i]['workDescription']:
+        if 'Queue Monitor' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
             qMSchedule.append(fullSchedule['Result'][i])
         
     #reorder QM assignments chronologically
@@ -85,12 +104,26 @@ def qmSplit(fullSchedule):
 
     return(orderedQMSchedule)
 
+def qmSplitNMRI(fullSchedule):
+    qMScheduleNMRI = [] #initialize empty list
+
+    #pull out QM assignments from full schedule
+    for i in range(0, len(fullSchedule['Result'])):
+        if 'Queue Monitor' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' in fullSchedule['Result'][i]['externalID']:
+            qMScheduleNMRI.append(fullSchedule['Result'][i])
+        
+    #reorder QM assignments chronologically
+    orderedQMScheduleNMRI = sorted(qMScheduleNMRI, key=itemgetter('startUTC'))
+    
+    #print(orderedQMScheduleNMRI)
+    return(orderedQMScheduleNMRI)
+
 def stbSplit(fullSchedule):
     stbSchedule = [] #initialize empty list
 
     #pull out STB assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
-        if 'Stand-By' in fullSchedule['Result'][i]['workDescription']:
+        if 'Stand-By' in fullSchedule['Result'][i]['workDescription'] and 'TSE1' not in fullSchedule['Result'][i]['externalID']:
             stbSchedule.append(fullSchedule['Result'][i])
         
     #reorder STB assignments chronologically
@@ -98,6 +131,21 @@ def stbSplit(fullSchedule):
     #print(orderedSTBSchedule)
 
     return(orderedSTBSchedule)
+
+
+def stbSplitTSE1(fullSchedule):
+    stbScheduleTSE1 = [] #initialize empty list
+
+    #pull out STB assignments from full schedule
+    for i in range(0, len(fullSchedule['Result'])):
+        if 'Stand-By' in fullSchedule['Result'][i]['workDescription'] and 'TSE1' in fullSchedule['Result'][i]['externalID']:
+            stbScheduleTSE1.append(fullSchedule['Result'][i])
+        
+    #reorder STB assignments chronologically
+    orderedSTBScheduleTSE1 = sorted(stbScheduleTSE1, key=itemgetter('startUTC'))
+    
+    #print(orderedSTBScheduleNMRI)
+    return(orderedSTBScheduleTSE1)
 
 
 def availableSplit(fullSchedule):
@@ -128,23 +176,24 @@ def removeFields(theSchedule):
                 
     return(theSchedule)
         
-def slTimeEdit(slSchedule):
+def timeZoneEdit(Schedule):
 
     #pull out shift lead assignments from full schedule
-    for i in range(0, len(slSchedule)):
+    for i in range(0, len(Schedule)):
         #adjust start times
-        startTimeString = (slSchedule[i]['startUTC'])
+        startTimeString = (Schedule[i]['startUTC'])
         start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
         start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
-        slSchedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+        Schedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
 
         #adjust end times
-        endTimeString = (slSchedule[i]['endUTC'])
+        endTimeString = (Schedule[i]['endUTC'])
         end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
         end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
-        slSchedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
-   
-    return(slSchedule)   
+        Schedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+    
+    return(Schedule)   
+    
 
 def qmTimeEdit(qmSchedule):
 
@@ -202,38 +251,69 @@ def availableTimeEdit(availableSchedule):
     
     return(availableSchedule)
 
-def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule):
+def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleNMRI, qmScheduleNMRI, stbScheduleTSE1):
 
     #get current date and time for csv header
-    current = datetime.datetime.now() # get today's date
-    currentFormat = current.strftime("%Y-%m-%d %H:%M")
+    current = datetime.datetime.now() + datetime.timedelta(days=-1) # get today's date
+    currentFormat = current.strftime("%Y-%m-%d %H:%M")    
+    
+    #current = datetime.datetime.now() # get today's date
+    #currentFormat = current.strftime("%Y-%m-%d %H:%M")
+    
 
-    with open('StaffSchedule.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
-        w = csv.DictWriter(f, slSchedule[0].keys())
-
-        w.writerow({'employeeFullName': currentFormat, 'startUTC':'','endUTC':''})
-        w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-        w.writerow({'employeeFullName': 'SHIFTLEAD', 'startUTC':'','endUTC':''})
-        w.writeheader()
-        w.writerows(slSchedule)
+    if not slSchedule: #check to make sure sl/qm/stb schedule has data 
+        with open('StaffSchedule.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
+            writer = csv.writer(f, delimiter=',')
+            writer.writerow([currentFormat,''])
+            writer.writerow(['No SL/QM/STB schedule published',''])
         
-        w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-        w.writerow({'employeeFullName': 'QM', 'startUTC':'','endUTC':''}) #write role to row
-        w.writeheader()
-        w.writerows(qmSchedule)
+   
+    else: #build the CSV
+        with open('StaffSchedule.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
+            w = csv.DictWriter(f, slSchedule[0].keys())
         
-        w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-        w.writerow({'employeeFullName': 'STANDBY', 'startUTC':'','endUTC':''}) #write role to row
-        w.writeheader()
-        w.writerows(stbSchedule)
+            #write DDI TSE2 SL schedule
+            w.writerow({'employeeFullName': currentFormat, 'startUTC':'','endUTC':''})
+            w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
+            w.writerow({'employeeFullName': 'SHIFTLEAD-DDI-TSE2', 'startUTC':'','endUTC':''})
+            w.writeheader()
+            w.writerows(slSchedule)
+            
+            #write DDI TSE2 QM schedule
+            w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
+            w.writerow({'employeeFullName': 'QM-DDI-TSE2', 'startUTC':'','endUTC':''}) #write role to row
+            w.writeheader()
+            w.writerows(qmSchedule)
+            
+            #write DDI TSE3 standby schedule
+            w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
+            w.writerow({'employeeFullName': 'STANDBY-DDI-TSE3', 'startUTC':'','endUTC':''}) #write role to row
+            w.writeheader()
+            w.writerows(stbSchedule)
 
-        w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-        w.writerow({'employeeFullName': 'AVAILABLE', 'startUTC':'','endUTC':''}) #write role to row
-        w.writeheader()
-        w.writerows(availableSchedule)
+            #write TSE1 DDI Standby Schedule
+            w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
+            w.writerow({'employeeFullName': 'STANDBY-DDI-TSE1', 'startUTC':'','endUTC':''}) #write role to row
+            w.writeheader()
+            w.writerows(stbScheduleTSE1)
 
-
-#def sendToGoogle(scheduleCSV):
+            #write NMRI SL schedule
+            w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
+            w.writerow({'employeeFullName': 'SHIFTLEAD-NMRI', 'startUTC':'','endUTC':''})
+            w.writeheader()
+            w.writerows(slScheduleNMRI)
+            
+            #write NMRI QM schedule
+            w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
+            w.writerow({'employeeFullName': 'QM-NMRI', 'startUTC':'','endUTC':''}) #write role to row
+            w.writeheader()
+            w.writerows(qmScheduleNMRI)
+            
+            
+            #w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
+            #w.writerow({'employeeFullName': 'AVAILABLE', 'startUTC':'','endUTC':''}) #write role to row
+            #w.writeheader()
+            #w.writerows(availableSchedule)
 
 
 if __name__ == "__main__":
@@ -244,27 +324,41 @@ if __name__ == "__main__":
     slSchedule = slSplit(fullSchedule) 
     qmSchedule = qmSplit(fullSchedule) 
     stbSchedule = stbSplit(fullSchedule) 
+    
+    slScheduleNMRI = slSplitNMRI(fullSchedule)
+    qmScheduleNMRI = qmSplitNMRI(fullSchedule)
+    
+    stbScheduleTSE1 = stbSplitTSE1(fullSchedule)
+    
     availableSchedule = availableSplit(fullSchedule)
 
     #remove unneeded columns from schedule
     slScheduleFiltered = removeFields(slSchedule)
     qmScheduleFiltered = removeFields(qmSchedule)
     stbScheduleFiltered = removeFields(stbSchedule)
+    slScheduleFilteredNMRI = removeFields(slScheduleNMRI)
+    qmScheduleFilteredNMRI = removeFields(qmScheduleNMRI)
+    stbScheduleFilteredTSE1 = removeFields(stbScheduleTSE1)
+   
     availableScheduleFiltered = removeFields(availableSchedule)
 
     #adjust timezone to PST/PDT and strip month/day/year from time - TBD
-    sl = slTimeEdit(slScheduleFiltered)
-    qm = qmTimeEdit(qmScheduleFiltered)
-    stb = stbTimeEdit(stbScheduleFiltered)
-    available = availableTimeEdit(availableScheduleFiltered)
+    sl = timeZoneEdit(slScheduleFiltered)
+    qm = timeZoneEdit(qmScheduleFiltered)
+    stb = timeZoneEdit(stbScheduleFiltered)
+    slNMRI = timeZoneEdit(slScheduleFilteredNMRI)
+    qmNMRI = timeZoneEdit(qmScheduleFilteredNMRI)
+    stbTSE1 = timeZoneEdit(stbScheduleFilteredTSE1)
+
+    available = timeZoneEdit(availableScheduleFiltered)
 
     #build the StaffSchedule csv
-    scheduleCSV = buildCSV(sl, qm, stb, available)
+    scheduleCSV = buildCSV(sl, qm, stb, available, slNMRI, qmNMRI, stbTSE1)
     
     #send csv to google Sheet
-    FILENAME = 'StaffSchedule.csv'
-    FILEPATH = 'StaffSchedule.csv'
-    MIMETYPE = 'text/csv'
+    #FILENAME = 'StaffSchedule.csv'
+    #FILEPATH = 'StaffSchedule.csv'
+    #MIMETYPE = 'text/csv'
 
-    googleapiInst = googleAPI.googleapi(FILENAME, FILEPATH,  MIMETYPE)
-    googleapiInst.uploadFile()
+    #googleapiInst = googleAPI.googleapi(FILENAME, FILEPATH,  MIMETYPE)
+    #googleapiInst.uploadFile()
