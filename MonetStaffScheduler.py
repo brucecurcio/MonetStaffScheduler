@@ -267,8 +267,9 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleN
    
     else: #build the CSV
         with open('StaffSchedule.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
-            w = csv.DictWriter(f, slSchedule[0].keys())
-        
+            fieldnames = ['employeeFullName', 'startUTC', 'endUTC'] # hardcode fieldname column order
+            w = csv.DictWriter(f, fieldnames=fieldnames)
+                    
             #write DDI TSE2 SL schedule
             w.writerow({'employeeFullName': currentFormat, 'startUTC':'','endUTC':''})
             w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
