@@ -36,11 +36,11 @@ def getSchedule(bearerToken):
                "Authorization": "Bearer " + bearerToken}
     
     #get today and tomorrow's date
-    now = datetime.datetime.now() + datetime.timedelta(days=-1) # get monday for developing on weekend
-    tomorrow = now + datetime.timedelta(days=1) #get tuesday for developing on weekend
+    #now = datetime.datetime.now() + datetime.timedelta(days=-1) # get monday for developing on weekend
+    #tomorrow = now + datetime.timedelta(days=1) #get tuesday for developing on weekend
     
-    #now = datetime.datetime.now() # get today's date
-    #tomorrow = now + datetime.timedelta(days=1) #get tomorrow's date
+    now = datetime.datetime.now() # get today's date
+    tomorrow = now + datetime.timedelta(days=1) #get tomorrow's date
     
     #reformat dates for Monet call (PDT = -7, PST = -6)
     nowFormat = now.strftime("%Y-%m-%d")+'T07:00:00'
@@ -256,10 +256,7 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleN
     #get current date and time for csv header
     current = datetime.datetime.now() + datetime.timedelta(hours=-7) # get today's date
     currentFormat = current.strftime("%Y-%m-%d %H:%M")    
-    
-    #current = datetime.datetime.now() # get today's date
-    #currentFormat = current.strftime("%Y-%m-%d %H:%M")
-    
+        
 
     if not slSchedule: #check to make sure sl/qm/stb schedule has data 
         with open('StaffSchedule.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
