@@ -11,19 +11,18 @@ import googleAPI
 def getBearerToken():
     
     #read username from txt file
-    with open("basicAuth.txt", "r") as basicAuth:
+    with open("./basicAuth.txt", "r") as basicAuth:
         basicAuthString = basicAuth.read()
-
+  
     #headers for api call to monet
-    headers = {"Accept": "application/x-www-form-urlencoded",
-               "Authorization": "Basic " + basicAuthString}
-
+    headers = {"Accept": "application/x-www-form-urlencoded", "Authorization": "Basic " + basicAuthString.rstrip("\n")}
+ 
     #get bearer token from Monet
     try:
         bearerToken = requests.post('https://api.wfmlive.com/Authentication', headers=headers, data='Tenant=Infoblox')
-        print('made it here')
+        #print('made it here')
     except ValueError:
-            print('there was a problem getting the bearer token')
+        print('there was a problem getting the bearer token')
 
     tokenString = bearerToken.text #convert json to string
     tokenDict = json.loads(tokenString) #convert string to dict
@@ -255,7 +254,7 @@ def availableTimeEdit(availableSchedule):
 def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleNMRI, qmScheduleNMRI, stbScheduleTSE1):
 
     #get current date and time for csv header
-    current = datetime.datetime.now() + datetime.timedelta(days=-1) # get today's date
+    current = datetime.datetime.now() + datetime.timedelta(hours=-7) # get today's date
     currentFormat = current.strftime("%Y-%m-%d %H:%M")    
     
     #current = datetime.datetime.now() # get today's date
@@ -357,9 +356,9 @@ if __name__ == "__main__":
     scheduleCSV = buildCSV(sl, qm, stb, available, slNMRI, qmNMRI, stbTSE1)
     
     #send csv to google Sheet
-    #FILENAME = 'StaffSchedule.csv'
-    #FILEPATH = 'StaffSchedule.csv'
-    #MIMETYPE = 'text/csv'
+    FILENAME = 'StaffSchedule.csv'
+    FILEPATH = 'StaffSchedule.csv'
+    MIMETYPE = 'text/csv'
 
-    #googleapiInst = googleAPI.googleapi(FILENAME, FILEPATH,  MIMETYPE)
-    #googleapiInst.uploadFile()
+    googleapiInst = googleAPI.googleapi(FILENAME, FILEPATH,  MIMETYPE)
+    googleapiInst.uploadFile()
