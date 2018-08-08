@@ -67,6 +67,8 @@ def slSplit(fullScheduleDict):
     for i in range(0, len(fullSchedule['Result'])):
         if 'SHIFT LEAD' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
             slSchedule.append(fullSchedule['Result'][i])
+        elif 'QM or Standby' in fullSchedule['Result'][i]['workDescription']:
+            slSchedule.append(fullSchedule['Result'][i])
 
     #reorder shift lead assignments chronologically
     orderedSLSchedule = sorted(slSchedule, key=itemgetter('startUTC'))
@@ -96,6 +98,8 @@ def qmSplit(fullSchedule):
     #pull out QM assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
         if 'Queue Monitor' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
+            qMSchedule.append(fullSchedule['Result'][i])
+        elif 'QM or Standby' in fullSchedule['Result'][i]['workDescription']:
             qMSchedule.append(fullSchedule['Result'][i])
         
     #reorder QM assignments chronologically
