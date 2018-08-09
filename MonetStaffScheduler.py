@@ -9,7 +9,7 @@ from operator import itemgetter
 import googleAPI
 
 def getBearerToken():
-    #nothing    
+    
     #read username from txt file
     with open("/scripts/MonetStaffScheduler/basicAuth.txt", "r") as basicAuth:
     #with open("./basicAuth.txt", "r") as basicAuth:
