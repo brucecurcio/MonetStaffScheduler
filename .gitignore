@@ -1,3 +1,15 @@
 psswd.txt
 usrname.txt
 basicAuth.txt
+client_secret.json
+.gitignore
+google-drive-credentials.json
+.credentials
+token.json
+.vscode/
+__pycache__/
+StaffSchedule.csv
+API_KEY.txt
+client_secret_IB.json
+togglePythonVersion
+monetscheduleserviceacct-b2ac406e6fa5.json

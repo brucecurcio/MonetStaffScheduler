@@ -14,7 +14,7 @@ def getBearerToken():
     with open("/scripts/MonetStaffScheduler/basicAuth.txt", "r") as basicAuth:
     #with open("./basicAuth.txt", "r") as basicAuth:
         basicAuthString = basicAuth.read()
-  
+
     #headers for api call to monet
     headers = {"Accept": "application/x-www-form-urlencoded", "Authorization": "Basic " + basicAuthString.rstrip("\n")}
  
