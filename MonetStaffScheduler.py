@@ -11,7 +11,8 @@ import googleAPI
 def getBearerToken():
     
     #read username from txt file
-    with open("./basicAuth.txt", "r") as basicAuth:
+    with open("/scripts/MonetStaffScheduler/basicAuth.txt", "r") as basicAuth:
+    #with open("./basicAuth.txt", "r") as basicAuth:
         basicAuthString = basicAuth.read()
   
     #headers for api call to monet
@@ -67,7 +68,7 @@ def slSplit(fullScheduleDict):
     for i in range(0, len(fullSchedule['Result'])):
         if 'SHIFT LEAD' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
             slSchedule.append(fullSchedule['Result'][i])
-        elif 'QM or Standby' in fullSchedule['Result'][i]['workDescription']:
+        elif 'Dual Role' in fullSchedule['Result'][i]['workDescription']:
             slSchedule.append(fullSchedule['Result'][i])
 
     #reorder shift lead assignments chronologically
@@ -99,7 +100,7 @@ def qmSplit(fullSchedule):
     for i in range(0, len(fullSchedule['Result'])):
         if 'Queue Monitor' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
             qMSchedule.append(fullSchedule['Result'][i])
-        elif 'QM or Standby' in fullSchedule['Result'][i]['workDescription']:
+        elif 'Dual Role' in fullSchedule['Result'][i]['workDescription']:
             qMSchedule.append(fullSchedule['Result'][i])
         
     #reorder QM assignments chronologically

@@ -30,7 +30,8 @@ class googleapi:
 
         #get credentials for googleAPI
         SCOPES = 'https://www.googleapis.com/auth/drive'
-        CLIENT_SECRET_FILE = 'client_secret_IB.json'
+        CLIENT_SECRET_FILE = '/scripts/MonetStaffScheduler/client_secret_IB.json'
+        #CLIENT_SECRET_FILE = 'client_secret_IB.json'
         APPLICATION_NAME = 'Drive API Python Quickstart'
         authInst = auth.auth(SCOPES,CLIENT_SECRET_FILE,APPLICATION_NAME)
         credentials = authInst.getCredentials()
