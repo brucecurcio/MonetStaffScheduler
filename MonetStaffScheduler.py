@@ -21,7 +21,6 @@ def getBearerToken():
     #get bearer token from Monet
     try:
         bearerToken = requests.post('https://api.wfmlive.com/Authentication', headers=headers, data='Tenant=Infoblox')
-        #print('made it here')
     except ValueError:
         print('there was a problem getting the bearer token')
 
@@ -278,38 +277,32 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleN
             #write DDI TSE2 SL schedule
             w.writerow({'employeeFullName': currentFormat, 'startUTC':'','endUTC':''})
             w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-            w.writerow({'employeeFullName': 'SHIFTLEAD-DDI-TSE2', 'startUTC':'','endUTC':''})
-            w.writeheader()
+            w.writerow({'employeeFullName': 'SHIFTLEAD-DDI-TSE2', 'startUTC':'START','endUTC':'END'})
             w.writerows(slSchedule)
             
             #write DDI TSE2 QM schedule
             w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-            w.writerow({'employeeFullName': 'QM-DDI-TSE2', 'startUTC':'','endUTC':''}) #write role to row
-            w.writeheader()
+            w.writerow({'employeeFullName': 'QM-DDI-TSE2', 'startUTC':'START','endUTC':'END'}) #write role to row
             w.writerows(qmSchedule)
             
             #write DDI TSE3 standby schedule
             w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-            w.writerow({'employeeFullName': 'STANDBY-DDI-TSE3', 'startUTC':'','endUTC':''}) #write role to row
-            w.writeheader()
+            w.writerow({'employeeFullName': 'STANDBY-DDI-TSE3', 'startUTC':'START','endUTC':'END'}) #write role to row
             w.writerows(stbSchedule)
 
             #write TSE1 DDI Standby Schedule
             w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-            w.writerow({'employeeFullName': 'STANDBY-DDI-TSE1', 'startUTC':'','endUTC':''}) #write role to row
-            w.writeheader()
+            w.writerow({'employeeFullName': 'STANDBY-DDI-TSE1', 'startUTC':'START','endUTC':'END'}) #write role to row
             w.writerows(stbScheduleTSE1)
 
             #write NMRI SL schedule
             w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-            w.writerow({'employeeFullName': 'SHIFTLEAD-NMRI', 'startUTC':'','endUTC':''})
-            w.writeheader()
+            w.writerow({'employeeFullName': 'SHIFTLEAD-NMRI', 'startUTC':'START','endUTC':'END'})
             w.writerows(slScheduleNMRI)
             
             #write NMRI QM schedule
             w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-            w.writerow({'employeeFullName': 'QM-NMRI', 'startUTC':'','endUTC':''}) #write role to row
-            w.writeheader()
+            w.writerow({'employeeFullName': 'QM-NMRI', 'startUTC':'START','endUTC':'END'}) #write role to row
             w.writerows(qmScheduleNMRI)
             
             
