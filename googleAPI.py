@@ -30,8 +30,8 @@ class googleapi:
 
         #get credentials for googleAPI
         SCOPES = 'https://www.googleapis.com/auth/drive'
-        #CLIENT_SECRET_FILE = '/scripts/MonetStaffScheduler/client_secret_IB.json'
-        CLIENT_SECRET_FILE = 'client_secret_IB.json'
+        CLIENT_SECRET_FILE = '/scripts/MonetStaffScheduler/client_secret_IB.json'
+        #CLIENT_SECRET_FILE = 'client_secret_IB.json'
         APPLICATION_NAME = 'Drive API Python Quickstart'
         authInst = auth.auth(SCOPES,CLIENT_SECRET_FILE,APPLICATION_NAME)
         credentials = authInst.getCredentials()
@@ -47,8 +47,9 @@ class googleapi:
         #check list of files in google drive for StaffSchedule; if found, get fileID
         notFound = True
         fileID = drive_service.files().list().execute()
+        #print (fileID)
         for i in range(0, len(fileID['files'])):
-            if (fileID['files'][i]['name'] == 'StaffSchedule') or (fileID['files'][i]['name'] == 'StaffSchedule.csv'):
+            if 'StaffSchedule' in fileID['files'][i]['name']:
                 file = drive_service.files().update(fileId=fileID['files'][i]['id'], body=file_metadata, media_body=media, fields='id').execute()
                 notFound = False
         

@@ -30,7 +30,7 @@ def getBearerToken():
     return tokenDict['token'] #return just bearer token string
 
 
-def getSchedule(bearerToken):
+def getSchedule(bearerToken, i):
     #headers for api call to monet
     headers = {"Accept": "application/json",
                "Authorization": "Bearer " + bearerToken}
@@ -39,7 +39,7 @@ def getSchedule(bearerToken):
     #now = datetime.datetime.now() + datetime.timedelta(days=-1) # get monday for developing on weekend
     #tomorrow = now + datetime.timedelta(days=1) #get tuesday for developing on weekend
     
-    now = datetime.datetime.now() # get today's date
+    now = datetime.datetime.now() + datetime.timedelta(days=i)# get today's date
     tomorrow = now + datetime.timedelta(days=1) #get tomorrow's date
     
     #reformat dates for Monet call (PDT = -7, PST = -6)
@@ -255,7 +255,7 @@ def availableTimeEdit(availableSchedule):
     
     return(availableSchedule)
 
-def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleNMRI, qmScheduleNMRI, stbScheduleTSE1):
+def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleNMRI, qmScheduleNMRI, stbScheduleTSE1, i):
 
     #get current date and time for csv header
     current = datetime.datetime.now() # get today's date
@@ -263,19 +263,22 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleN
         
 
     if not slSchedule: #check to make sure sl/qm/stb schedule has data 
-        with open('StaffSchedule.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
+        with open('StaffSchedule' + str(i) + '.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
             writer = csv.writer(f, delimiter=',')
             writer.writerow([currentFormat,''])
             writer.writerow(['No SL/QM/STB schedule published',''])
         
    
     else: #build the CSV
-        with open('StaffSchedule.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
+        with open('StaffSchedule' + str(i) + '.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
             fieldnames = ['employeeFullName', 'startUTC', 'endUTC'] # hardcode fieldname column order
             w = csv.DictWriter(f, fieldnames=fieldnames)
                     
             #write DDI TSE2 SL schedule
-            w.writerow({'employeeFullName': currentFormat, 'startUTC':'','endUTC':''})
+            if i == 0:
+                w.writerow({'employeeFullName': currentFormat, 'startUTC':'','endUTC':''}) #creation date/time
+            else:
+                w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
             w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
             w.writerow({'employeeFullName': 'SHIFTLEAD-DDI-TSE2', 'startUTC':'START','endUTC':'END'})
             w.writerows(slSchedule)
@@ -314,46 +317,43 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleN
 
 if __name__ == "__main__":
     bearerToken = getBearerToken() #get bearer token from Monet
-    fullSchedule = getSchedule(bearerToken) #grab full schedule from Monet
     
-    #extract schedule and reorder entries according to start time
-    slSchedule = slSplit(fullSchedule) 
-    qmSchedule = qmSplit(fullSchedule) 
-    stbSchedule = stbSplit(fullSchedule) 
+    for i in range(0,7):
+        fullSchedule = getSchedule(bearerToken, i) #grab full schedule from Monet
     
-    slScheduleNMRI = slSplitNMRI(fullSchedule)
-    qmScheduleNMRI = qmSplitNMRI(fullSchedule)
-    
-    stbScheduleTSE1 = stbSplitTSE1(fullSchedule)
-    
-    availableSchedule = availableSplit(fullSchedule)
+        #extract schedule and reorder entries according to start time
+        slSchedule = slSplit(fullSchedule) 
+        qmSchedule = qmSplit(fullSchedule) 
+        stbSchedule = stbSplit(fullSchedule) 
+        slScheduleNMRI = slSplitNMRI(fullSchedule)
+        qmScheduleNMRI = qmSplitNMRI(fullSchedule)
+        stbScheduleTSE1 = stbSplitTSE1(fullSchedule)
+        availableSchedule = availableSplit(fullSchedule)
 
-    #remove unneeded columns from schedule
-    slScheduleFiltered = removeFields(slSchedule)
-    qmScheduleFiltered = removeFields(qmSchedule)
-    stbScheduleFiltered = removeFields(stbSchedule)
-    slScheduleFilteredNMRI = removeFields(slScheduleNMRI)
-    qmScheduleFilteredNMRI = removeFields(qmScheduleNMRI)
-    stbScheduleFilteredTSE1 = removeFields(stbScheduleTSE1)
-   
-    availableScheduleFiltered = removeFields(availableSchedule)
+        #remove unneeded columns from schedule
+        slScheduleFiltered = removeFields(slSchedule)
+        qmScheduleFiltered = removeFields(qmSchedule)
+        stbScheduleFiltered = removeFields(stbSchedule)
+        slScheduleFilteredNMRI = removeFields(slScheduleNMRI)
+        qmScheduleFilteredNMRI = removeFields(qmScheduleNMRI)
+        stbScheduleFilteredTSE1 = removeFields(stbScheduleTSE1)
+        availableScheduleFiltered = removeFields(availableSchedule)
 
-    #adjust timezone to PST/PDT and strip month/day/year from time - TBD
-    sl = timeZoneEdit(slScheduleFiltered)
-    qm = timeZoneEdit(qmScheduleFiltered)
-    stb = timeZoneEdit(stbScheduleFiltered)
-    slNMRI = timeZoneEdit(slScheduleFilteredNMRI)
-    qmNMRI = timeZoneEdit(qmScheduleFilteredNMRI)
-    stbTSE1 = timeZoneEdit(stbScheduleFilteredTSE1)
+        #adjust timezone to PST/PDT and strip month/day/year from time - TBD
+        sl = timeZoneEdit(slScheduleFiltered)
+        qm = timeZoneEdit(qmScheduleFiltered)
+        stb = timeZoneEdit(stbScheduleFiltered)
+        slNMRI = timeZoneEdit(slScheduleFilteredNMRI)
+        qmNMRI = timeZoneEdit(qmScheduleFilteredNMRI)
+        stbTSE1 = timeZoneEdit(stbScheduleFilteredTSE1)
+        available = timeZoneEdit(availableScheduleFiltered)
 
-    available = timeZoneEdit(availableScheduleFiltered)
-
-    #build the StaffSchedule csv
-    scheduleCSV = buildCSV(sl, qm, stb, available, slNMRI, qmNMRI, stbTSE1)
+        #build the StaffSchedule csv
+        buildCSV(sl, qm, stb, available, slNMRI, qmNMRI, stbTSE1, i)
     
     #send csv to google Sheet
-    FILENAME = 'StaffSchedule.csv'
-    FILEPATH = 'StaffSchedule.csv'
+    FILENAME = 'StaffSchedule0.csv'
+    FILEPATH = 'StaffSchedule0.csv'
     MIMETYPE = 'text/csv'
 
     googleapiInst = googleAPI.googleapi(FILENAME, FILEPATH,  MIMETYPE)
