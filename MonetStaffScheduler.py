@@ -258,7 +258,7 @@ def availableTimeEdit(availableSchedule):
 def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleNMRI, qmScheduleNMRI, stbScheduleTSE1):
 
     #get current date and time for csv header
-    current = datetime.datetime.now() + datetime.timedelta(hours=-7) # get today's date
+    current = datetime.datetime.now() # get today's date
     currentFormat = current.strftime("%Y-%m-%d %H:%M")    
         
 
