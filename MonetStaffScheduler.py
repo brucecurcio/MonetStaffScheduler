@@ -11,8 +11,8 @@ import googleAPI
 def getBearerToken():
     
     #read username from txt file
-    with open("/scripts/MonetStaffScheduler/basicAuth.txt", "r") as basicAuth:
-    #with open("./basicAuth.txt", "r") as basicAuth:
+    #with open("/scripts/MonetStaffScheduler/basicAuth.txt", "r") as basicAuth:
+    with open("./basicAuth.txt", "r") as basicAuth:
         basicAuthString = basicAuth.read()
 
     #headers for api call to monet
@@ -66,14 +66,16 @@ def slSplit(fullScheduleDict):
     #pull out shift lead assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
         if 'SHIFT LEAD' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
+            print(fullSchedule['Result'][i]['workDescription']+ ' ' + str(i))
             slSchedule.append(fullSchedule['Result'][i])
-        elif 'Dual Role' in fullSchedule['Result'][i]['workDescription']:
+        elif 'Dual Role' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
+            print(fullSchedule['Result'][i]['workDescription'] + ' ' + str(i))
             slSchedule.append(fullSchedule['Result'][i])
 
     #reorder shift lead assignments chronologically
     orderedSLSchedule = sorted(slSchedule, key=itemgetter('startUTC'))
-    #print(orderedSLSchedule)
 
+    #print(orderedSLSchedule)
     return(orderedSLSchedule)   
 
 def slSplitNMRI(fullScheduleDict):
@@ -99,7 +101,7 @@ def qmSplit(fullSchedule):
     for i in range(0, len(fullSchedule['Result'])):
         if 'Queue Monitor' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
             qMSchedule.append(fullSchedule['Result'][i])
-        elif 'Dual Role' in fullSchedule['Result'][i]['workDescription']:
+        elif 'Dual Role' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
             qMSchedule.append(fullSchedule['Result'][i])
         
     #reorder QM assignments chronologically
@@ -139,7 +141,7 @@ def stbSplit(fullSchedule):
 
 def stbSplitTSE1(fullSchedule):
     stbScheduleTSE1 = [] #initialize empty list
-
+    
     #pull out STB assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
         if 'Stand-By' in fullSchedule['Result'][i]['workDescription'] and 'TSE1' in fullSchedule['Result'][i]['externalID']:
@@ -177,25 +179,32 @@ def removeFields(theSchedule):
         for key in fields:
             if key in theSchedule[i]:
                 del theSchedule[i][key]
-                
+    #print (theSchedule)            
     return(theSchedule)
         
 def timeZoneEdit(Schedule):
-
-    #pull out shift lead assignments from full schedule
+    
+    #pull out assignments from full schedule
     for i in range(0, len(Schedule)):
+        
         #adjust start times
         startTimeString = (Schedule[i]['startUTC'])
-        start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
-        start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
-        Schedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+        try:
+            start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
+            start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
+            Schedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+        except ValueError:
+            print(Schedule[i]['employeeFullName'] + ' edit already done ' + str(i))
 
         #adjust end times
         endTimeString = (Schedule[i]['endUTC'])
-        end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
-        end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
-        Schedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
-    
+        try:
+            end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
+            end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
+            Schedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
+        except ValueError:
+            print(Schedule[i]['employeeFullName'] +' edit already done')
+    #print(Schedule)
     return(Schedule)   
     
 
@@ -341,7 +350,9 @@ if __name__ == "__main__":
 
         #adjust timezone to PST/PDT and strip month/day/year from time - TBD
         sl = timeZoneEdit(slScheduleFiltered)
+        #print(sl)
         qm = timeZoneEdit(qmScheduleFiltered)
+        #print(qm)
         stb = timeZoneEdit(stbScheduleFiltered)
         slNMRI = timeZoneEdit(slScheduleFilteredNMRI)
         qmNMRI = timeZoneEdit(qmScheduleFilteredNMRI)
