@@ -11,8 +11,8 @@ import googleAPI
 def getBearerToken():
     
     #read username from txt file
-    #with open("/scripts/MonetStaffScheduler/basicAuth.txt", "r") as basicAuth:
-    with open("./basicAuth.txt", "r") as basicAuth:
+    with open("/scripts/MonetStaffScheduler/basicAuth.txt", "r") as basicAuth:
+    #with open("./basicAuth.txt", "r") as basicAuth:
         basicAuthString = basicAuth.read()
 
     #headers for api call to monet
@@ -66,10 +66,10 @@ def slSplit(fullScheduleDict):
     #pull out shift lead assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
         if 'SHIFT LEAD' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
-            print(fullSchedule['Result'][i]['workDescription']+ ' ' + str(i))
+            #print(fullSchedule['Result'][i]['workDescription']+ ' ' + str(i))
             slSchedule.append(fullSchedule['Result'][i])
         elif 'Dual Role' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
-            print(fullSchedule['Result'][i]['workDescription'] + ' ' + str(i))
+            #print(fullSchedule['Result'][i]['workDescription'] + ' ' + str(i))
             slSchedule.append(fullSchedule['Result'][i])
 
     #reorder shift lead assignments chronologically
