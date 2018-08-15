@@ -10,9 +10,9 @@ import googleAPI
 
 def getBearerToken():
     
-    #read username from txt file
-    #with open("/scripts/MonetStaffScheduler/basicAuth.txt", "r") as basicAuth:
-    with open("./basicAuth.txt", "r") as basicAuth:
+    #read username from text file
+    with open("/scripts/MonetStaffScheduler/basicAuth.txt", "r") as basicAuth:
+    #with open("./basicAuth.txt", "r") as basicAuth:
         basicAuthString = basicAuth.read()
 
     #headers for api call to monet
