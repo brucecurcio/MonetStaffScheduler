@@ -52,17 +52,17 @@ def getSchedule(bearerToken, i):
     except ValueError:
             print('there was a problem getting the Full Monet Schedule')
     
+    #print(fullSchedule.text)
     scheduleString = fullSchedule.text #convert json to string
     scheduleDict = json.loads(scheduleString) #convert string to dict
     
-    #print(scheduleDict)
     return (scheduleDict)
 
 
 def slSplit(fullScheduleDict):
 
     slSchedule = [] #initialize empty list
-
+    #print(fullScheduleDict)
     #pull out shift lead assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
         if 'SHIFT LEAD' in fullSchedule['Result'][i]['workDescription'] and 'NMRI' not in fullSchedule['Result'][i]['externalID']:
@@ -329,7 +329,7 @@ if __name__ == "__main__":
     
     for i in range(0,7):
         fullSchedule = getSchedule(bearerToken, i) #grab full schedule from Monet
-    
+        #print(fullSchedule)
         #extract schedule and reorder entries according to start time
         slSchedule = slSplit(fullSchedule) 
         qmSchedule = qmSplit(fullSchedule) 
