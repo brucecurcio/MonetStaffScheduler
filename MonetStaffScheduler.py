@@ -274,7 +274,8 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleN
     if not slSchedule: #check to make sure sl/qm/stb schedule has data 
         with open('StaffSchedule' + str(i) + '.csv', 'w', newline='') as f:  # Just use 'w' mode in 3.x
             writer = csv.writer(f, delimiter=',')
-            writer.writerow([currentFormat,''])
+            if i == 0:
+                writer.writerow([currentFormat,''])
             writer.writerow(['No SL/QM/STB schedule published',''])
         
    
@@ -362,10 +363,18 @@ if __name__ == "__main__":
         #build the StaffSchedule csv
         buildCSV(sl, qm, stb, available, slNMRI, qmNMRI, stbTSE1, i)
     
-    #send csv to google Sheet
-    FILENAME = 'StaffSchedule0.csv'
-    FILEPATH = 'StaffSchedule0.csv'
-    MIMETYPE = 'text/csv'
+    #google sheetID array
+    sheetIds = []
 
-    googleapiInst = googleAPI.googleapi(FILENAME, FILEPATH,  MIMETYPE)
-    googleapiInst.uploadFile()
+    #send csvs to google Sheet
+    for i in range(0,7):
+        FILENAME = 'StaffSchedule' + str(i) + '.csv'
+        FILEPATH = 'StaffSchedule' + str(i) + '.csv'
+        MIMETYPE = 'text/csv'
+
+        googleapiInst = googleAPI.googleapi(FILENAME, FILEPATH,  MIMETYPE)
+        sheetIds.append(googleapiInst.uploadFile())
+
+    #print(sheetIds)
+    googleapiInst = googleAPI.googleapi('none', 'none', 'none')
+    googleapiInst.mergeSheets(sheetIds)
