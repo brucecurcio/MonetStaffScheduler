@@ -31,8 +31,8 @@ class googleapi:
 
         #get credentials for googleAPI
         SCOPES = 'https://www.googleapis.com/auth/drive'
-        #CLIENT_SECRET_FILE = '/scripts/MonetStaffScheduler/client_secret_IB.json'
-        CLIENT_SECRET_FILE = 'client_secret.json'
+        CLIENT_SECRET_FILE = '/scripts/MonetStaffScheduler/client_secret_IB.json'
+        #CLIENT_SECRET_FILE = 'client_secret.json'
         APPLICATION_NAME = 'Drive API Python Quickstart'
         authInst = auth.auth(SCOPES,CLIENT_SECRET_FILE,APPLICATION_NAME)
         credentials = authInst.getCredentials()
@@ -74,8 +74,8 @@ class googleapi:
 
         #get credentials for googleAPI
         SCOPES = 'https://www.googleapis.com/auth/drive'
-        CLIENT_SECRET_FILE = '/scripts/MonetStaffScheduler/client_secret_IB.json'
-        #CLIENT_SECRET_FILE = 'client_secret.json'
+        #CLIENT_SECRET_FILE = '/scripts/MonetStaffScheduler/client_secret_IB.json'
+        CLIENT_SECRET_FILE = 'client_secret.json'
         APPLICATION_NAME = 'Drive API Python Quickstart'
         authInst = auth.auth(SCOPES,CLIENT_SECRET_FILE,APPLICATION_NAME)
         credentials = authInst.getCredentials()
@@ -98,6 +98,7 @@ class googleapi:
             if i == 0:
                 requestSheetId = sheet_service.spreadsheets().get(spreadsheetId=spreadsheet_id)
                 sheetResponse = requestSheetId.execute()
+                #print ("first sheet renamed")
 
                 # The ID of the sheet.
                 sheet_id = sheetResponse['sheets'][0]['properties']['sheetId']
@@ -114,8 +115,22 @@ class googleapi:
                         }
                     }]
                 }
-                
-                sheet_service.spreadsheets().batchUpdate(spreadsheetId=sheetIds[0], body=body).execute()     
+                sheet_service.spreadsheets().batchUpdate(spreadsheetId=sheetIds[0], body=body).execute()
+
+                #autosize columns to content width
+                bodyResize = {
+                    "requests": [{
+                        "autoResizeDimensions": {
+                            "dimensions": {
+                                "sheetId": sheet_id,
+                                "dimension": "COLUMNS",
+                                "startIndex": 0,
+                                "endIndex": 2
+                            }
+                        }
+                    }]
+                }
+                sheet_service.spreadsheets().batchUpdate(spreadsheetId=sheetIds[0], body=bodyResize).execute() 
 
             else:
                 
@@ -127,20 +142,13 @@ class googleapi:
 
                 copy_sheet_to_another_spreadsheet_request_body = {
                     # The ID of the spreadsheet to copy the sheet to.
-                    'destination_spreadsheet_id': sheetIds[0],  # TODO: Update placeholder value.
-            
-                    # TODO: Add desired entries to the request body.
+                    'destination_spreadsheet_id': sheetIds[0],
                 }
 
                 request = sheet_service.spreadsheets().sheets().copyTo(spreadsheetId=spreadsheet_id, sheetId=sheet_id, body=copy_sheet_to_another_spreadsheet_request_body)
                 response = request.execute()
 
                 new_sheetId = response['sheetId']
-                #print(new_sheetId)
-
-                #sheetDate = datetime.datetime.now() + datetime.timedelta(days=i) # get today's date
-                #sheetDateString = sheetDate.strftime("%Y-%m-%d") 
-                #print(sheetDateString)
 
                 #rename sheets
                 body = {
@@ -154,9 +162,21 @@ class googleapi:
                         }
                     }]
                 }
-                
-                update_response = sheet_service.spreadsheets().batchUpdate(spreadsheetId=sheetIds[0], body=body).execute()
+                sheet_service.spreadsheets().batchUpdate(spreadsheetId=sheetIds[0], body=body).execute()
             
-                # TODO: Change code below to process the `response` dict:
+                #autosize columns to content width
+                bodyResize = {
+                    "requests": [{
+                        "autoResizeDimensions": {
+                            "dimensions": {
+                                "sheetId": new_sheetId,
+                                "dimension": "COLUMNS",
+                                "startIndex": 0,
+                                "endIndex": 2
+                            }
+                        }
+                    }]
+                }
+                sheet_service.spreadsheets().batchUpdate(spreadsheetId=sheetIds[0], body=bodyResize).execute() 
+                
                 print(response)      
-                #print(update_response)

@@ -5,6 +5,7 @@ import os
 from pprint import pprint
 import datetime
 from operator import itemgetter
+import time
 
 import googleAPI
 
@@ -42,9 +43,16 @@ def getSchedule(bearerToken, i):
     now = datetime.datetime.now() + datetime.timedelta(days=i)# get today's date
     tomorrow = now + datetime.timedelta(days=1) #get tomorrow's date
     
-    #reformat dates for Monet call (PDT = -7, PST = -6)
-    nowFormat = now.strftime("%Y-%m-%d")+'T07:00:00'
-    tomorrowFormat = tomorrow.strftime("%Y-%m-%d")+'T06:59:59'
+    #check for daylight savings time and reformat dates for Monet Call (PDT = -7, PST = -6)
+    theTime = time.localtime()
+    if theTime.tm_isdst == 0:
+        nowFormat = now.strftime("%Y-%m-%d")+'T06:00:00'
+        tomorrowFormat = tomorrow.strftime("%Y-%m-%d")+'T05:59:59'
+        print ('pst')
+    else:
+        nowFormat = now.strftime("%Y-%m-%d")+'T07:00:00'
+        tomorrowFormat = tomorrow.strftime("%Y-%m-%d")+'T06:59:59'
+        print ('pdt')
 
     #get Full Schedule from Monet
     try:
