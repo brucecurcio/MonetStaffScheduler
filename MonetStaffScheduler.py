@@ -167,7 +167,7 @@ def availableSplit(fullSchedule):
 
     #pull out Available assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
-        if 'Available' in fullSchedule['Result'][i]['workDescription']:
+        if 'Available' in fullSchedule['Result'][i]['workDescription'] and 'TSE2' in fullSchedule['Result'][i]['externalID']:
             availableSchedule.append(fullSchedule['Result'][i])
         
     #reorder Available assignments chronologically
@@ -191,6 +191,12 @@ def removeFields(theSchedule):
     return(theSchedule)
         
 def timeZoneEdit(Schedule):
+
+    theTime = time.localtime()
+    if theTime.tm_isdst == 0:
+        delta = -6
+    else:
+        delta = -7
     
     #pull out assignments from full schedule
     for i in range(0, len(Schedule)):
@@ -199,7 +205,7 @@ def timeZoneEdit(Schedule):
         startTimeString = (Schedule[i]['startUTC'])
         try:
             start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
-            start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
+            start_time_obj = start_time_obj + datetime.timedelta(hours=delta)
             Schedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
         except ValueError:
             print(Schedule[i]['employeeFullName'] + ' edit already done ' + str(i))
@@ -208,70 +214,13 @@ def timeZoneEdit(Schedule):
         endTimeString = (Schedule[i]['endUTC'])
         try:
             end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
-            end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
+            end_time_obj = end_time_obj + datetime.timedelta(hours=delta)
             Schedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
         except ValueError:
             print(Schedule[i]['employeeFullName'] +' edit already done')
     #print(Schedule)
     return(Schedule)   
-    
-
-def qmTimeEdit(qmSchedule):
-
-    #pull out shift lead assignments from full schedule
-    for i in range(0, len(qmSchedule)):
-        #adjust start times
-        startTimeString = (qmSchedule[i]['startUTC'])
-        start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
-        start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
-        qmSchedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
-
-        #adjust end times
-        endTimeString = (qmSchedule[i]['endUTC'])
-        end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
-        end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
-        qmSchedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
-    
-    return(qmSchedule)
-
-
-def stbTimeEdit(stbSchedule):
-
-    #pull out shift lead assignments from full schedule
-    for i in range(0, len(stbSchedule)):
-        #adjust start times
-        startTimeString = (stbSchedule[i]['startUTC'])
-        start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
-        start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
-        stbSchedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
-
-        #adjust end times
-        endTimeString = (stbSchedule[i]['endUTC'])
-        end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
-        end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
-        stbSchedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
-    
-    return(stbSchedule)
-
-
-def availableTimeEdit(availableSchedule):
-
-    #pull out shift lead assignments from full schedule
-    for i in range(0, len(availableSchedule)):
-        #adjust start times
-        startTimeString = (availableSchedule[i]['startUTC'])
-        start_time_obj = datetime.datetime.strptime(startTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
-        start_time_obj = start_time_obj + datetime.timedelta(hours=-7)
-        availableSchedule[i]['startUTC'] = start_time_obj.strftime("%H:%M:%S") #shave date off, leave time
-
-        #adjust end times
-        endTimeString = (availableSchedule[i]['endUTC'])
-        end_time_obj = datetime.datetime.strptime(endTimeString, '%Y-%m-%dT%H:%M:%S') # convert str to datetime obj
-        end_time_obj = end_time_obj + datetime.timedelta(hours=-7)
-        availableSchedule[i]['endUTC'] = end_time_obj.strftime("%H:%M:%S") #shave date off, leave time
-    
-    return(availableSchedule)
-
+  
 def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleNMRI, qmScheduleNMRI, stbScheduleTSE1, i):
 
     #get current date and time for csv header
@@ -306,6 +255,11 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleN
             w.writerow({'employeeFullName': 'QM-DDI-TSE2', 'startUTC':'START','endUTC':'END'}) #write role to row
             w.writerows(qmSchedule)
             
+            #write DDI TSE2 BP schedule
+            #w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
+            #w.writerow({'employeeFullName': 'BP-DDI-TSE2', 'startUTC':'START','endUTC':'END'}) #write role to row
+            #w.writerows(availableSchedule)
+
             #write DDI TSE3 standby schedule
             w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
             w.writerow({'employeeFullName': 'STANDBY-DDI-TSE3', 'startUTC':'START','endUTC':'END'}) #write role to row
@@ -326,13 +280,6 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleN
             w.writerow({'employeeFullName': 'QM-NMRI', 'startUTC':'START','endUTC':'END'}) #write role to row
             w.writerows(qmScheduleNMRI)
             
-            
-            #w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-            #w.writerow({'employeeFullName': 'AVAILABLE', 'startUTC':'','endUTC':''}) #write role to row
-            #w.writeheader()
-            #w.writerows(availableSchedule)
-
-
 if __name__ == "__main__":
     bearerToken = getBearerToken() #get bearer token from Monet
     
@@ -359,9 +306,7 @@ if __name__ == "__main__":
 
         #adjust timezone to PST/PDT and strip month/day/year from time - TBD
         sl = timeZoneEdit(slScheduleFiltered)
-        #print(sl)
         qm = timeZoneEdit(qmScheduleFiltered)
-        #print(qm)
         stb = timeZoneEdit(stbScheduleFiltered)
         slNMRI = timeZoneEdit(slScheduleFilteredNMRI)
         qmNMRI = timeZoneEdit(qmScheduleFilteredNMRI)
