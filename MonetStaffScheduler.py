@@ -46,8 +46,8 @@ def getSchedule(bearerToken, i):
     #check for daylight savings time and reformat dates for Monet Call (PDT = -7, PST = -6)
     theTime = time.localtime()
     if theTime.tm_isdst == 0:
-        nowFormat = now.strftime("%Y-%m-%d")+'T06:00:00'
-        tomorrowFormat = tomorrow.strftime("%Y-%m-%d")+'T05:59:59'
+        nowFormat = now.strftime("%Y-%m-%d")+'T08:00:00'
+        tomorrowFormat = tomorrow.strftime("%Y-%m-%d")+'T07:59:59'
         print ('pst')
     else:
         nowFormat = now.strftime("%Y-%m-%d")+'T07:00:00'
@@ -194,7 +194,7 @@ def timeZoneEdit(Schedule):
 
     theTime = time.localtime()
     if theTime.tm_isdst == 0:
-        delta = -6
+        delta = -8
     else:
         delta = -7
     
