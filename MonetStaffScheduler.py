@@ -256,9 +256,9 @@ def buildCSV(slSchedule, qmSchedule, stbSchedule, availableSchedule, slScheduleN
             w.writerows(qmSchedule)
             
             #write DDI TSE2 BP schedule
-            #w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
-            #w.writerow({'employeeFullName': 'BP-DDI-TSE2', 'startUTC':'START','endUTC':'END'}) #write role to row
-            #w.writerows(availableSchedule)
+            w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
+            w.writerow({'employeeFullName': 'BP-DDI-TSE2 **BETA**', 'startUTC':'START','endUTC':'END'}) #write role to row
+            w.writerows(availableSchedule)
 
             #write DDI TSE3 standby schedule
             w.writerow({'employeeFullName': '', 'startUTC':'','endUTC':''}) #empty row spacer
