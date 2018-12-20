@@ -57,6 +57,7 @@ class googleapi:
         for i in range(0, len(fileID['files'])):
             #print (self.FILENAME)
             if self.FILENAME in fileID['files'][i]['name'] + '.csv':
+                #print(fileID['files'][i]['name'])
                 file = drive_service.files().update(fileId=fileID['files'][i]['id'], body=file_metadata, media_body=media, fields='id').execute()
                 notFound = False
                 
