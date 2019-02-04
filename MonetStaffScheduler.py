@@ -135,9 +135,9 @@ def qmSplitNMRI(fullSchedule):
 def stbSplit(fullSchedule):
     stbSchedule = [] #initialize empty list
 
-    #pull out STB assignments from full schedule
+    #pull out TSE3 STB assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
-        if 'Stand-By' in fullSchedule['Result'][i]['workDescription'] and 'TSE1' not in fullSchedule['Result'][i]['externalID']:
+        if 'Stand-By' in fullSchedule['Result'][i]['workDescription'] and 'TSE3' in fullSchedule['Result'][i]['externalID']:
             stbSchedule.append(fullSchedule['Result'][i])
         
     #reorder STB assignments chronologically
@@ -150,7 +150,7 @@ def stbSplit(fullSchedule):
 def stbSplitTSE1(fullSchedule):
     stbScheduleTSE1 = [] #initialize empty list
     
-    #pull out STB assignments from full schedule
+    #pull out TSE1 STB assignments from full schedule
     for i in range(0, len(fullSchedule['Result'])):
         if 'Stand-By' in fullSchedule['Result'][i]['workDescription'] and 'TSE1' in fullSchedule['Result'][i]['externalID']:
             stbScheduleTSE1.append(fullSchedule['Result'][i])
