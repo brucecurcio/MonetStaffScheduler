@@ -11,6 +11,8 @@ import googleAPI
 
 def getBearerToken():
     
+    #useless comment
+
     #read username from text file
     with open("/scripts/MonetStaffScheduler/basicAuth.txt", "r") as basicAuth:
     #with open("./basicAuth.txt", "r") as basicAuth:
